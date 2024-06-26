@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setting Up For Kubernetes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-image: url('gradient.jpg');
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        .navbar {
+            width: 100%;
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+            background: rgba(76, 175, 80, 0);
+            border-style: solid;
+            border-width: 10px;
+            border-color:rgba(70, 9, 225, 0.964) ;
+        }
+
+        .navbar h1 {
+            margin: 0;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .navbar a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 28px;
+        }
+
+        .content {
+            width: 80%;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(76, 175, 80, 0)
+        }
+
+        .content h1,
+        .content h2 {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: white;
+        }
+
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            background: rgba(76, 175, 80, 0);
+            border-style: solid;
+            border-color: rgb(6, 123, 177);
+            border-width: 10px;
+            border-radius: 10px;
+        }
+
+        code {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: white
+        }
+        .content p {
+            color: white;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="navbar">
+        <h1>Setting Up For Kubernetes(Debian/Ubuntu Install)</h1>
+        <a href="#install-ubuntu">Install Ubuntu Updates + Apps</a>
+        <a href="#network-config">Complete Network Config</a>
+        <a href="#kernel-install">Install Kernel 6.3</a>
+        <a href="#docker-install">Install Docker and Kubernetes</a>
+        <a href="#kubernetes-setup">Kubernetes Setup</a>
+        <a href="#minikube-setup">Minikube Setup</a>
+        <a href="#terraform">Terraform Install</a>
+    </div>
+
+    <div class="content">
+        <h1 id="install-ubuntu">Install Ubuntu Updates + Apps</h1>
+<pre><code>    $ sudo apt-get update
+    $ sudo apt-get upgrade -y
+    $ sudo apt-add-repository -y ppa:cappelikan/ppa
+    $ sudo add-apt-repository ppa:danielrichter2007/grub-customizer
+    $ sudo apt-get install -y apt-transport-https ca-certificates curl ssh xauth mainline-gtk grub-customizer docker.io build-essential gcc-12
+    $ sudo swapoff -a
+</code></pre>
+        <h2 id="network-config">Complete Network Config</h2>
+        <p>Your network interface will most likely be enp0s3 or ethX or wlan0 or ensXX (DO NOT CHANGE lo INTERFACE AS IT CAN CAUSE FAILURE OF CONNECTION LOCALHOST APPS TO OTHER PORT APPS)</p>
+<pre><code>    $ sudo ifconfig NETWORK_INTERFACE YOUR_IP netmask SUBNET_MASK
+    $ sudo route add default gw DEFAULT_GATEWAY
+</code></pre>
+        <h2 id="kernel-install">Install Kernel 6.3</h2>
+        <pre><code>    # Identify which kernel version is running
+    $ uname -r
+    6.5.0-14-generic
+
+    $ sudo apt update
+    # Start | "Mainline Kernels" and install kernel 6.3
+
+    # Show grub bootmenu to boot the newly installed kernel
+    $ sudo gedit /etc/default/grub
+        #GRUB_TIMEOUT_STYLE=hidden
+        GRUB_TIMEOUT_STYLE=menu
+	    
+        #GRUB_TIMEOUT=0
+        GRUB_TIMEOUT=5
+		
+    $ sudo update-grub
+    $ sudo reboot now
+	
+    # From the Grub boot menu, select Advanced options for Ubuntu | Ubuntu, with Linux 6.3.0-060300-generic | Enter
+    # Check running kernel
+    $ uname -r
+    6.3.0-060300-generic
+	
+    # Mount VirtualBox guest additions ISO and reinstall
+    # Make sure that gcc-12 is installed, otherwise the installation will fail
+    $ cd /media/<user>/media/a/VBox_GAs_6.1.XX/
+    $ sudo ./VBoxLinuxAdditions.run
+    $ sudo reboot now
+    # When problem is solved, change Grub bootmenu permanently
+    $ grub-customizer
+
+    # Tab General Settings | predefined: Advanced options for Ubuntu>Ubuntu, with Linux 6.3.0-060300-generic | Save
+    # reboot
+</code></pre>
+        <h2 id="docker-install">Install Docker and Kubernetes</h2>
+<pre><code>    $ sudo mkdir /etc/apt/keyrings
+    $ sudo usermod -aG docker $USER && newgrp docker
+    $ curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    $ echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+    $ sudo apt-get update && sudo apt-get upgrade
+    $ sudo apt-get install -y kubelet kubeadm kubectl
+</code></pre>
+        <h2 id="kubernetes-setup">Kubernetes Setup(Only if using separate servers/machines for running Worker/Master Nodes)</h2>
+<pre><code>    $ sudo kubeadm init
+    # Here Kubeadm will give you an cluster-joiner key/ token (Copy it)
+    $ kubectl get nodes(to check node status , dont worry if you see not ready :)
+    $ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+				OR
+    $ kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.0/manifests/calico.yaml
+				OR
+    $ kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
+
+</code></pre>
+        <p>Steps to set up Kubernetes on the worker nodes.</p>
+<pre><code>    # Paste the cluster-joiner token/key , It should look something like the command below (x's need to be replace with ip given by kubeadm and the token part with the token)
+    $ kubeadm join xxx.xxx.xxx.xxx --token xxxxxxx \ -discovery-token-ca-cert-hash
+</code></pre>
+        <h2 id="minikube-setup">Minikube Setup (For Single VM Development)</h2>
+<pre><code>    $ curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube_latest_amd64.deb
+    $ sudo dpkg -i minikube_latest_amd64.deb
+    $ minikube start
+</code></pre>
+</code></pre>
+<h2 id="terraform">Terraform Install</h2>
+<pre><code>    $ wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+    $ echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+    $ sudo apt update && sudo apt install terraform
+    $ terraform --version
+</code></pre>
+
+    </div>
+</body>
+
+</html>
