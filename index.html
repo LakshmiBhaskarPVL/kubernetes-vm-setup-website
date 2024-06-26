@@ -110,6 +110,7 @@
     $ sudo add-apt-repository ppa:danielrichter2007/grub-customizer
     $ sudo apt-get install -y apt-transport-https ca-certificates curl ssh xauth mainline-gtk grub-customizer docker.io build-essential gcc-12
     $ sudo swapoff -a
+    $ sudo nano /etc/fstab (comment out swap.img)
 </code></pre>
         <h2 id="network-config">Complete Network Config</h2>
         <p>Your network interface will most likely be enp0s3 or ethX or wlan0 or ensXX (DO NOT CHANGE lo INTERFACE AS IT CAN CAUSE FAILURE OF CONNECTION LOCALHOST APPS TO OTHER PORT APPS)</p>
