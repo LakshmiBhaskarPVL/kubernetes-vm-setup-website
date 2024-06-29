@@ -124,7 +124,7 @@
     $ sudo apt-get upgrade -y
     $ sudo apt-add-repository -y ppa:cappelikan/ppa
     $ sudo add-apt-repository ppa:danielrichter2007/grub-customizer
-    $ sudo apt-get install -y apt-transport-https ca-certificates curl ssh xauth mainline-gtk grub-customizer docker.io build-essential gcc-12
+    $ sudo apt-get install -y apt-transport-https ca-certificates curl ssh xauth mainline-gtk grub-customizer docker.io build-essential gcc-12 xorg x11-apps
     $ sudo swapoff -a
     $ sudo nano /etc/fstab (comment out swap.img)
 </code></pre>
@@ -133,7 +133,7 @@
 <pre><code>    $ sudo ifconfig NETWORK_INTERFACE YOUR_IP netmask SUBNET_MASK
     $ sudo route add default gw DEFAULT_GATEWAY
 </code></pre>
-        <h2 id="kernel-install">Install Kernel 6.3</h2>
+        <h2 id="kernel-install">Install Kernel 6.3 (MANDATORY FOR NETWORK + VM RESIZING - VBox_GAs_6)</h2>
         <pre><code>    # Identify which kernel version is running
     $ uname -r
     6.5.0-14-generic
