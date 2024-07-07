@@ -124,8 +124,9 @@
     $ sudo apt-get upgrade -y
     $ sudo apt-add-repository -y ppa:cappelikan/ppa
     $ sudo add-apt-repository ppa:danielrichter2007/grub-customizer
-    $ sudo apt-get install -y apt-transport-https ca-certificates curl ssh xauth mainline grub-customizer docker.io build-essential linux-headers-generic xorg x11-apps
-    # I am installing required dependencies for kubernetes,x11,docker,kernel
+    $ sudo apt-get install -y apt-transport-https ca-certificates curl ssh xauth mainline grub-customizer docker.io build-essential linux-headers-generic xorg x11-apps dkms module-assistant
+    $ sudo m-a prepare
+    # I am installing required dependencies for kubernetes,x11,docker,kernel for display
     $ sudo swapoff -a
     $ sudo nano /etc/fstab (comment out swap.img)
 </code></pre>
